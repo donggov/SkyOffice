@@ -22,6 +22,8 @@ import store from '../stores'
 import { setFocused, setShowChat } from '../stores/ChatStore'
 import { NavKeys, Keyboard } from '../../../types/KeyboardState'
 
+import { useChatRoomStore } from '../stores/ChatStorePinia'
+
 export default class Game extends Phaser.Scene {
   network!: Network
   private cursors!: NavKeys
@@ -34,9 +36,11 @@ export default class Game extends Phaser.Scene {
   private otherPlayerMap = new Map<string, OtherPlayer>()
   computerMap = new Map<string, Computer>()
   private whiteboardMap = new Map<string, Whiteboard>()
+  private chatStore
 
   constructor() {
     super('game')
+    this.chatStore = useChatRoomStore()
   }
 
   registerKeys() {
@@ -50,11 +54,17 @@ export default class Game extends Phaser.Scene {
     this.keyR = this.input.keyboard.addKey('R')
     this.input.keyboard.disableGlobalCapture()
     this.input.keyboard.on('keydown-ENTER', (event) => {
-      store.dispatch(setShowChat(true))
-      store.dispatch(setFocused(true))
+      // todo
+      console.log('enter')
+      // store.dispatch(setShowChat(true))
+      // store.dispatch(setFocused(true))
+      this.chatStore.setShowChat(true)
+      this.chatStore.setFocused(true)
     })
     this.input.keyboard.on('keydown-ESC', (event) => {
-      store.dispatch(setShowChat(false))
+      console.log('esc')
+      // store.dispatch(setShowChat(false))
+      this.chatStore.setShowChat(false)
     })
   }
 

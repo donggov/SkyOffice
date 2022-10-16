@@ -1,13 +1,23 @@
 <script setup lang="ts">
-// This starter template is using Vue 3 <script setup> SFCs
-// Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
 import RoomSelectionDialog from './components/RoomSelectionDialog.vue'
+import LoginDialog from './components/LoginDialog.vue'
+import Chat from './components/Chat.vue'
+
+import { useRoomStore } from './stores/RoomStorePinia'
+import { useUserStore } from './stores/UserStorePinia'
+
+const roomStore = useRoomStore()
+const userStore = useUserStore()
 </script>
 
 <template>
-  <!-- <div></div> -->
-  <RoomSelectionDialog msg="Vite + Vue" />
-  <!-- <HelloWorld msg="Vite + Vue" /> -->
+  <div>
+    <div v-if="userStore.loggedIn">
+      <chat />
+    </div>
+    <login-dialog v-else-if="roomStore.roomJoined" />
+    <room-selection-dialog v-else />
+  </div>
 </template>
 
 <style scoped>

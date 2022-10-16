@@ -21,6 +21,8 @@ import {
 } from '../stores/ChatStore'
 import { setWhiteboardUrls } from '../stores/WhiteboardStore'
 
+import { useChatRoomStore } from '../stores/ChatStorePinia'
+
 export default class Network {
   private client: Client
   private room?: Room<IOfficeState>
@@ -28,6 +30,8 @@ export default class Network {
   webRTC?: WebRTC
 
   mySessionId!: string
+
+  private chatStore
 
   constructor() {
     const protocol = window.location.protocol.replace('http', 'ws')
@@ -43,6 +47,8 @@ export default class Network {
     phaserEvents.on(Event.MY_PLAYER_NAME_CHANGE, this.updatePlayerName, this)
     phaserEvents.on(Event.MY_PLAYER_TEXTURE_CHANGE, this.updatePlayer, this)
     phaserEvents.on(Event.PLAYER_DISCONNECTED, this.playerStreamDisconnect, this)
+
+    this.chatStore = useChatRoomStore()
   }
 
   /**
@@ -67,6 +73,7 @@ export default class Network {
 
   // method to join the public lobby
   async joinOrCreatePublic() {
+    console.log('joinOrCreatePublic')
     this.room = await this.client.joinOrCreate(RoomType.PUBLIC)
     this.initialize()
   }
@@ -111,8 +118,10 @@ export default class Network {
           // when a new player finished setting up player name
           if (field === 'name' && value !== '') {
             phaserEvents.emit(Event.PLAYER_JOINED, player, key)
+            // todo
             store.dispatch(setPlayerNameMap({ id: key, name: value }))
             store.dispatch(pushPlayerJoinedMessage(value))
+            this.chatStore.pushPlayerJoinedMessage(value)
           }
         })
       }
@@ -123,7 +132,8 @@ export default class Network {
       phaserEvents.emit(Event.PLAYER_LEFT, key)
       this.webRTC?.deleteVideoStream(key)
       this.webRTC?.deleteOnCalledVideoStream(key)
-      store.dispatch(pushPlayerLeftMessage(player.name))
+      // store.dispatch(pushPlayerLeftMessage(player.name))
+      this.chatStore.pushPlayerLeftMessage(player.name)
       store.dispatch(removePlayerNameMap(key))
     }
 
@@ -157,7 +167,8 @@ export default class Network {
 
     // new instance added to the chatMessages ArraySchema
     this.room.state.chatMessages.onAdd = (item, index) => {
-      store.dispatch(pushChatMessage(item))
+      // store.dispatch(pushChatMessage(item))
+      this.chatStore.pushChatMessage(item)
     }
 
     // when the server sends room data

@@ -3,13 +3,16 @@ import Network from '../services/Network'
 import { BackgroundMode } from '../../../types/BackgroundMode'
 import store from '../stores'
 import { setRoomJoined } from '../stores/RoomStore'
+import { useRoomStore } from '../stores/RoomStorePinia'
 
 export default class Bootstrap extends Phaser.Scene {
   private preloadComplete = false
   network!: Network
+  private roomStore
 
   constructor() {
     super('bootstrap')
+    this.roomStore = useRoomStore()
   }
 
   preload() {
@@ -99,7 +102,8 @@ export default class Bootstrap extends Phaser.Scene {
     })
 
     // update Redux state
-    store.dispatch(setRoomJoined(true))
+    // store.dispatch(setRoomJoined(true))
+    this.roomStore.setRoomJoined(true)
   }
 
   changeBackgroundMode(backgroundMode: BackgroundMode) {
